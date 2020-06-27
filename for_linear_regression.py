@@ -72,16 +72,16 @@ class MonteCarloSimulations(RegressionAnalysis):
         X = np.insert(obs, 0, 1)
 
         coef_samples_array = coef_samples_df.values
-        col_number = coef_samples_array.shape[1]
+        column_number = coef_samples_array.shape[1]
         
         x_repeat = 100
-        Y_with_repeated_x =  np.zeros(shape=(len(X_generated_sample), x_repeat))
+        Y_with_repeated_x = np.zeros(shape=(len(X_generated_sample), x_repeat))
         row = 0
         for x in X_generated_sample:
             Y = []
             for i in range(x_repeat):
                 coefs = []
-                for c in range(col_number):
+                for c in range(column_number):
                     coef = np.random.choice(coef_samples_array[:, c])
                     coefs.append(coef)
                 X[var_position] = x
@@ -95,6 +95,7 @@ class MonteCarloSimulations(RegressionAnalysis):
 ms = MonteCarloSimulations(df)
 ols_model = ms.ols_model(df['Sold_Price'], df[['Area_Size', 'Lottery_Dummy', \
                             'Occupation_Dummy', 'Days_Open_5', 'Size_Franchise_Order2']])
+
 
 coef_samples = ms.generate_coef_samples(ols_model.params, ols_model.bse)
 
@@ -110,7 +111,6 @@ observation_choosen = df.loc['W1359413'][1:]
 
 x_array = ms.gernerate_X_samples(df['Area_Size'])
 Y_simulated = ms.y_simulation_with_single_variable(df['Area_Size'], 1, observation_choosen,coef_samples)
-# print(Y_simulated.shape)
 
 # ** calculate ci
 ci_lower_bound = []
@@ -122,10 +122,14 @@ for i in range(Y_simulated.shape[0]):
     ci_upper_bound.append(upper_ci)
     M.append(mean)
 
-flat_y = Y_simulated.flatten()
-# x_axis = np.random.uniform(0, len(flat_y), 1000)
-plt.plot(mean)
-plt.plot(ci_lower_bound)
-plt.plot(ci_upper_bound)
+y_flatten = Y_simulated.flatten()
+plt.plot(y_flatten, )
+plt.title('simulated y as x increase')
 plt.show()
-# print(len(ci_upper_bound))
+
+plt.plot(M, label='Mean')
+plt.plot(ci_lower_bound, label='Lower Bound')
+plt.plot(ci_upper_bound, label='Upper Bound')
+plt.legend()
+plt.title('confidence intervale')
+plt.show()
