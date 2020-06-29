@@ -1,4 +1,4 @@
-# Monto Carlo Simulations for OLS
+# Monte Carlo Simulations for OLS
 ## Simulated y
 Choose one observation, keep other variables fixed, with generated coefficient samples (normal distribution) and one generated variable (Area Size) sample (uniform distribution), loop through Area Size sample with each iteration repeating x 100 times, the true relationship is shown between y (Sold Price) and x (Area Size).
 
