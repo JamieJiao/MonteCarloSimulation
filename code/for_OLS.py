@@ -81,7 +81,7 @@ class MonteCarloSimulations():
             Y = []
             var_values[var_position] = x
             # ** repeat x to generate its correspoding y sample
-            for i in range(x_repeat_times):
+            for x_repeat_count in range(x_repeat_times):
                 coefs = []
                 for c in range(coef_count):
                     coef = np.random.choice(coef_samples_array[:, c])
