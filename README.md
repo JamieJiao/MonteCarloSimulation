@@ -5,7 +5,7 @@ Choose one observation, keep other variables fixed, with generated coefficient s
 ![](images/simulated_y_as_x_inreases.png)
 
 ## Confidence intervals for simulated y
-As the times of x repeatiton increse, from 100 to 10000, the simulated confidence intervals (95%) tend to have less fluctuation and are more close to straight lines (which are the true confidence intervals for the simulated y). In each iteration, the simulated y sample size gets bigger and the simulated y distribution gets more close to the true distribution.
+As the times of x repetition increse, from 100 to 10000, the simulated confidence intervals (95%) tend to have less fluctuation and are closer to straight lines (which are the true confidence intervals for the simulated y). In each iteration, the simulated y sample size gets bigger and the simulated y distribution gets closer to the true distribution.
 
 ![](images/confidence_interval_x_repeat_100.png)
 
