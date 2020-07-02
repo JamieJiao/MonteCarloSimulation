@@ -20,8 +20,6 @@ The true relationships between y and X are violated. And simulated y distributio
 
 ![](images/simulated_y_as_area_size_increases.png)
 
-![](images/simulated_y_as_rental_increases.png)
-
 ![](images/CI_x_repeat_100_area_size.png)
 
 ![](images/CI_x_repeat_10000_area_size.png)
