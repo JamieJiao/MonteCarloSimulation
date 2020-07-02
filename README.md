@@ -16,18 +16,12 @@ As the times of x repetition increse, from 100 to 10000, the simulated confidenc
 ## Confidence intervals when there is a strong correlation among two variables
 
 Predictor Area Size and Rental have a significant correlation.
-The true relationships between y and X are violated. And simulated y distribution is no more normal distribution.
+The true relationships between y and X are violated. And simulated y distribution is less normal distribution.
 
 ![](images/simulated_y_as_area_size_increases.png)
 
 ![](images/simulated_y_as_rental_increases.png)
 
-Also, with the presence of high multicollinearity, the confidence intervals tend to become wide as predictors have less power to explain the response variable. And the confidence intervals are not paralleled with the mean values.
-
 ![](images/CI_x_repeat_100_area_size.png)
 
 ![](images/CI_x_repeat_10000_area_size.png)
-
-![](images/CI_x_repeat_100_rental.png)
-
-![](images/CI_x_repeat_10000_rental.png)
