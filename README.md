@@ -27,4 +27,4 @@ In order to overcome the multicollinearity issue, linear transformation for Rent
 
 When there is a strong correlation between explanatory variables, the model confidence intervals for the reponse variable tend to be much wider.
 
-After Monte Carlo simulation, the simulated y has much narrower confidence intervals.
+After Monte Carlo simulation, the simulated y has much narrower confidence intervals. And the true relationships between y and X are shown.
