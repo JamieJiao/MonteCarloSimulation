@@ -27,17 +27,21 @@ def confidence_interval_calculation(data, alpha=0.95):
     lower_ci = mean - st.norm.ppf(alpha)*sigma
     return mean, upper_ci, lower_ci
 
-def simulate_rental(square_feet_generated, constant_coef_mean, square_feet_coef_mean, \
-                                                    constant_coef_std, square_feet_coef_std):
+def simulate_rental(square_feet_generated, coefs_mean, coefs_std_error, simualated_var_name='Area_Size'):
     """
     Based on regression between reponse variable, Rental, 
     and explanatory variable, SquareFeet,
     to generate simulated Rental.
     """
 
-    constant_coef_generated = np.random.normal(constant_coef_mean, constant_coef_std, 1)
-    square_feet_coef_generated = np.random.normal(square_feet_coef_mean, square_feet_coef_std, 1)
-    rental_simulated = constant_coef_generated*1 + square_feet_coef_generated*square_feet_generated
+    rental_simulated = 0
+    for i in range(len(coefs_mean)):
+        coef_generated = np.random.normal(coefs_mean[i], coefs_std_error[i], 1)
+        if coefs_mean.index[i] != simualated_var_name: 
+            term = coef_generated * 1
+        else:
+            term = coef_generated * square_feet_generated
+        rental_simulated += term
 
     return rental_simulated
 
@@ -52,11 +56,11 @@ def simulate_sold_price(observation_choosen, square_feet_posi, \
     """
 
     sold_price_simulated = 0
-    """ change to numpy array"""
+    """ convert to numpy array """
     observation_choosen = np.array(observation_choosen)
     """ add constant to the observation """
     observation_choosen = np.insert(observation_choosen, 0, 1)
-    
+    """ replace variable by simulated one """
     observation_choosen[square_feet_posi] = square_feet_generated
 
     for i in range(len(coefs_mean)):
@@ -66,7 +70,7 @@ def simulate_sold_price(observation_choosen, square_feet_posi, \
             term = coef_generated * observation_choosen[i]
         else:
             term = coef_generated * rental_simulated
-        sold_price_simulated = sold_price_simulated + term
+        sold_price_simulated += term
     
     return sold_price_simulated
 
@@ -87,9 +91,8 @@ def sold_price_subsample_generate(observation_choosen, square_feet_generated, \
         simulated_sold_price_subsample.append(simulated_sold_price)
     return simulated_sold_price_subsample
 
-def Simulation_Results(observation_choosen, square_feet_mean, square_feet_td, \
-                        constant_coef_mean, constant_coef_std, \
-                        square_feet_coef_mean, square_feet_coef_std, \
+def Simulation_Results(observation_choosen, square_feet_mean, square_feet_std, \
+                        coefs_mean, coefs_std, \
                         full_coefs_mean, full_coefs_std, sample_size=1000):
     """
     Mean and confidence intervals are generated in each iteration.
@@ -114,15 +117,13 @@ def Simulation_Results(observation_choosen, square_feet_mean, square_feet_td, \
     means = []
     for n in range(sample_size):
         """ simulate Square Feet """
-        square_feet_generated = np.random.normal(square_feet_mean, square_feet_td, 1)
+        square_feet_generated = np.random.normal(square_feet_mean, square_feet_std, 1)
         if square_feet_generated <= 0:
             continue
         else:
             generated_square_feet_sample.append(square_feet_generated[0])
             """ simulate Rental based on the regression between Rental and Square Feet """
-            rental_simulated = simulate_rental(square_feet_generated, constant_coef_mean, \
-                                                square_feet_coef_mean, \
-                                                constant_coef_std, square_feet_coef_std)
+            rental_simulated = simulate_rental(square_feet_generated, coefs_mean, coefs_std)
             simulated_rental_sample.append(rental_simulated[0])
 
             simulated_sold_price_subsample = sold_price_subsample_generate(observation_choosen, \
@@ -137,6 +138,7 @@ def Simulation_Results(observation_choosen, square_feet_mean, square_feet_td, \
 
     results_display(means, ci_upper_bound, ci_lower_bound, \
                     simulated_rental_sample, generated_square_feet_sample)
+    distribution_plot(means)
 
     return means, upper_ci, lower_ci
 
@@ -151,7 +153,7 @@ def results_display(means, ci_upper_bound, ci_lower_bound, \
 
     plt.plot(generated_square_feet_sample, means, label='Mean')
     plt.ylabel('Simulated Sold Price')
-    plt.xlabel('Square Feet')
+    plt.xlabel('Simulated Square Feet')
 
     plt.plot(generated_square_feet_sample, ci_lower_bound, label='Lower Bound')
     plt.plot(generated_square_feet_sample, ci_upper_bound, label='Upper Bound')
@@ -161,7 +163,7 @@ def results_display(means, ci_upper_bound, ci_lower_bound, \
 
     plt.plot(simulated_rental_sample, means, label='Mean')
     plt.ylabel('Simulated Sold Price')
-    plt.xlabel('Rental')
+    plt.xlabel('Simulated Rental')
 
     plt.plot(simulated_rental_sample, ci_lower_bound, label='Lower Bound')
     plt.plot(simulated_rental_sample, ci_upper_bound, label='Upper Bound')
@@ -169,38 +171,13 @@ def results_display(means, ci_upper_bound, ci_lower_bound, \
     plt.title('Confidence Intervals')
     plt.show()
 
-
-df = pd.read_excel('model_data.xlsx').set_index('MLS')
-df = df[['Sold_Price', 'Area_Size', 'Rental_Month', 'Lottery_Dummy', \
-        'Occupation_Dummy', 'Days_Open_5', 'Size_Franchise_Order2']]
-
-df_x = df[['Area_Size', 'Rental_Month', 'Lottery_Dummy', \
-            'Occupation_Dummy', 'Days_Open_5', 'Size_Franchise_Order2']]
-
-observation_choosen = df_x.loc['W1359413']
-
-area_size_mean = np.mean(df['Area_Size'])
-ss_area_size = calculate_sum_of_squares(df['Area_Size'])
-size = len(df['Area_Size'])
-area_size_std = math.sqrt(ss_area_size/(size - 1))
-
-rental_mean = np.mean(df['Rental_Month'])
-ss_rental = calculate_sum_of_squares(df['Rental_Month'])
-rental_std = math.sqrt(ss_rental/(size - 1))
-
-regression_rental_size = linear_regression(df_x['Rental_Month'], df_x['Area_Size'])
-
-size = len(df['Area_Size'])
-constant_coef_mean = regression_rental_size.params[0]
-area_size_coef_mean = regression_rental_size.params[1]
-constant_coef_std = regression_rental_size.bse[0]
-area_size_coef_std = regression_rental_size.bse[1]
-
-full_regression = linear_regression(df['Sold_Price'], df_x)
-full_coefs = full_regression.params
-full_coefs_std_error = full_regression.bse
+def distribution_plot(data):
+    mu = np.mean(data)
+    sigma = np.sqrt(calculate_sum_of_squares(data) / len(data))
+    count, bins, ignored = plt.hist(data, 30, density=True)
+    plt.plot(bins, 1/(sigma * np.sqrt(2 * np.pi)) * \
+        np.exp( - (bins - mu)**2 / (2 * sigma**2) ),linewidth=2, color='r')
+    plt.title('Density Function of Simulated Sold Price Means')
+    plt.show()
 
 
-Simulation_Results(observation_choosen, area_size_mean, area_size_std, constant_coef_mean, constant_coef_std, \
-                    area_size_coef_mean, area_size_coef_std, \
-                        full_coefs, full_coefs_std_error)
